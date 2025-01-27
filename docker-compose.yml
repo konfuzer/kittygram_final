@@ -9,33 +9,26 @@ volumes:
 services:
   db:
     image: postgres:13
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file: .env
     volumes:
       - pg_data:/var/lib/postgresql/data
-
   backend:
     build: ./backend/
     env_file: .env
     volumes:
-      - media:/app/media
-      - static:/app/static
-    depends_on:
-      - db
-
+      - static:/backend_static
+      - media:/media
   frontend:
     build: ./frontend/
-    command: cp -r /app/build/. /static/
+    env_file: .env
+    command: cp -r /app/build/. /frontend_static/
     volumes:
-      - static:/static
-
+      - static:/frontend_static
   gateway:
     build: ./nginx/
     env_file: .env
+    volumes:
+      - static:/staticfiles
+      - media:/media
     ports:
       - 9000:80
-    volumes:
-      - static:/static
-      - media:/media

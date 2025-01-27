@@ -1,16 +1,13 @@
-FROM python:3.9-slim
+FROM python:3.9
 
 WORKDIR /app
 
-# Устанавливаем зависимости
-COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install gunicorn==20.1.0
 
-# Копируем все файлы приложения
-COPY . /app/
+COPY requirements.txt .
 
-# Устанавливаем переменные окружения
-ENV PYTHONUNBUFFERED 1
+RUN pip install -r requirements.txt --no-cache-dir
 
-# Команда для запуска сервера Django
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+COPY . .
+
+CMD ["gunicorn", "--bind", "0.0.0.0:9000", "kittygram_backend.wsgi"]
